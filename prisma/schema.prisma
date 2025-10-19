@@ -1,32 +1,27 @@
 generator client {
   provider      = "prisma-client-js"
-  // Os binaryTargets geralmente não são necessários com driverAdapters,
-  // mas pode mantê-los se precisar para outros ambientes.
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "sqlite"
-  // A URL deve vir de uma variável de ambiente para incluir o token de autenticação.
   url      = env("DATABASE_URL")
 }
 
-// Modelos do NextAuth (Auth.js)
 model Account {
   id                String  @id @default(cuid())
   userId            String  @map("user_id")
   type              String
   provider          String
   providerAccountId String  @map("provider_account_id")
-  refresh_token     String? // No SQLite, String e Text são equivalentes
+  refresh_token     String?
   access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -49,10 +44,10 @@ model User {
   emailVerified DateTime? @map("email_verified")
   image         String?
   password      String?
-  accounts      Account[]
-  sessions      Session[]
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
+  accounts      Account[]
+  sessions      Session[]
 
   @@map("users")
 }
